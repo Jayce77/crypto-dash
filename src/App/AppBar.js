@@ -1,4 +1,5 @@
 import styled, {css} from 'styled-components';
+import {AppContext} from './AppProvider';
 
 const Logo = styled.div`
   font-size: 1.5em;
@@ -20,16 +21,25 @@ const ControlButonElem = styled.div`
 const toProperCase = (lower) => lower.charAt(0).toUpperCase() + lower.substr(1);
 
 const ControlButton = ({name, active}) => (
-  <ControlButonElem active={active}>
-    {toProperCase(name)}
-  </ControlButonElem>
+  <AppContext.Consumer>
+    {({page, setPage}) =>(
+      <ControlButonElem
+        active={page === name}
+        onClick={() => setPage(name)}  
+      >
+      {toProperCase(name)}
+    </ControlButonElem>
+    )} 
+  </AppContext.Consumer>
+  
 );
 
-export default function() {
-  return (
-    <Bar>
-      <Logo>CryptoDash</Logo>
-      <ControlButton active name="dashboard" />
-      <ControlButton name="settings" />
-    </Bar>)
-}
+const AppBar = () => (
+  <Bar>
+    <Logo>CryptoDash</Logo>
+    <ControlButton active name="dashboard" />
+    <ControlButton name="settings" />
+  </Bar>
+);
+
+export default AppBar;
