@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+const CC = require('cryptocompare');
 
 export const AppContext = React.createContext();
 
@@ -16,12 +18,22 @@ export const AppProvider = props => {
   
   const [page, setPage] = useState(settings.page);
   const [firstVisit, setVisit ] = useState(settings.firstVisit);
+  const [coinList, setCoinList] = useState();
   const confirmFavorites = () => {
     setVisit(false);
     localStorage.setItem('cryptoDash', JSON.stringify({
       test: 'hello'
     }));
   }
+
+  const fetchCoins = async () => {
+    let coinList = await CC.coinList().Data;
+    setCoinList(coinList);
+  }
+
+  useEffect(() => {
+    fetchCoins();
+  })
 
   return (
     <AppContext.Provider
