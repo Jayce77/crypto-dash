@@ -20,6 +20,7 @@ export const AppProvider = props => {
   const [page, setPage] = useState(settings.page);
   const [firstVisit, setVisit ] = useState(settings.firstVisit);
   const [coinList, setCoinList] = useState();
+  
   const confirmFavorites = () => {
     setVisit(false);
     localStorage.setItem('cryptoDash', JSON.stringify({
@@ -38,7 +39,7 @@ export const AppProvider = props => {
 
   return (
     <AppContext.Provider
-      value={{page, firstVisit, setPage, confirmFavorites}}
+      value={{page, firstVisit, setPage, confirmFavorites, coinList, setCoinList}}
     >
       {props.children}
     </AppContext.Provider>
