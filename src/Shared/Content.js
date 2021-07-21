@@ -2,7 +2,7 @@ import {AppContext} from '../App/AppProvider';
 
 const Content = (props) => (
   <AppContext.Consumer>
-    {(coinList) => (
+    {({coinList}) => (
       <div>
         {!coinList ? 'Loading Coins' : props.children}
       </div>

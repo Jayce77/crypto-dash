@@ -20,7 +20,7 @@ export const AppProvider = props => {
   const [page, setPage] = useState(settings.page);
   const [firstVisit, setVisit ] = useState(settings.firstVisit);
   const [coinList, setCoinList] = useState();
-  
+
   const confirmFavorites = () => {
     setVisit(false);
     localStorage.setItem('cryptoDash', JSON.stringify({
@@ -28,18 +28,18 @@ export const AppProvider = props => {
     }));
   }
 
-  const fetchCoins = async () => {
-    let coinList = await CC.coinList().Data;
-    setCoinList(coinList);
-  }
-
   useEffect(() => {
+    const fetchCoins = async () => {
+      const response = await CC.coinList();
+      setCoinList(response.Data);
+    }
     fetchCoins();
-  })
+  }, []);
+
 
   return (
     <AppContext.Provider
-      value={{page, firstVisit, setPage, confirmFavorites, coinList, setCoinList}}
+      value={{page, firstVisit, setPage, confirmFavorites, coinList}}
     >
       {props.children}
     </AppContext.Provider>
