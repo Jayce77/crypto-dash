@@ -3,13 +3,16 @@ import Settings from '../Settings';
 import AppLayout from './AppLayout';
 import AppBar from './AppBar';
 import { AppProvider } from './AppProvider';
+import Content from '../Shared/Content'
 
 function App() {
   return (
     <AppLayout className="App">
       <AppProvider>
-        <AppBar></AppBar>      
-        <Settings />
+        <AppBar />
+        <Content>      
+          <Settings />
+        </Content>
       </AppProvider>
     </AppLayout>
   );
