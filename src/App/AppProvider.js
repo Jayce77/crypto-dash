@@ -24,6 +24,7 @@ export const AppProvider = props => {
   const settings = savedSettings();
   
   const [page, setPage] = useState(settings.page);
+  const [filteredCoins, setFilteredCoins] = useState();
   const [firstVisit, setVisit ] = useState(settings.firstVisit);
   const [coinList, setCoinList] = useState();
   const [favorites, setFavorites] = useState(settings.favorites);
@@ -60,6 +61,8 @@ export const AppProvider = props => {
         page,
         firstVisit,
         setPage,
+        setFilteredCoins,
+        filteredCoins,
         confirmFavorites,
         coinList,
         favorites,
