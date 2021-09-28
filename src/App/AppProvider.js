@@ -28,12 +28,34 @@ export const AppProvider = props => {
   const [firstVisit, setVisit ] = useState(settings.firstVisit);
   const [coinList, setCoinList] = useState();
   const [favorites, setFavorites] = useState(settings.favorites);
+  const [prices, setPrices] = useState();
 
   const confirmFavorites = () => {
     setVisit(false);
+    fetchPrices();
     localStorage.setItem('cryptoDash', JSON.stringify({
       favorites: favorites
     }));
+  }
+
+  const fetchPrices = async () => {
+    let prices = await getPriceData();
+    console.log(prices)
+    prices = prices.filter(price => Object.keys(price).length);
+    setPrices({prices});
+  }
+
+  const getPriceData = async () => {
+    let returnData = [];
+    for (const favorite of favorites) {
+       try {
+         const priceData = await CC.priceFull(favorite, 'USD');
+         returnData = returnData.concat(priceData);
+       } catch (e) {
+         console.warn('Fetch price error:', e);
+       }
+    };
+    return returnData;
   }
 
   const addCoin = (key) => {
@@ -53,6 +75,10 @@ export const AppProvider = props => {
     }
     fetchCoins();
   }, []);
+
+  useEffect(() => {
+    !settings.firstVisit && fetchPrices();
+  }, [])
 
 
   return (
