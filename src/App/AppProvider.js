@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import _ from 'lodash';
 
 const MAX_FAVORITES = 10;
@@ -32,20 +32,12 @@ export const AppProvider = props => {
 
   const confirmFavorites = () => {
     setVisit(false);
-    fetchPrices();
     localStorage.setItem('cryptoDash', JSON.stringify({
       favorites: favorites
     }));
   }
 
-  const fetchPrices = async () => {
-    let prices = await getPriceData();
-    console.log(prices)
-    prices = prices.filter(price => Object.keys(price).length);
-    setPrices({prices});
-  }
-
-  const getPriceData = async () => {
+  const getPriceData = useCallback(async () => {
     let returnData = [];
     for (const favorite of favorites) {
        try {
@@ -56,7 +48,14 @@ export const AppProvider = props => {
        }
     };
     return returnData;
-  }
+  }, [favorites]);
+  
+  const fetchPrices = useCallback(async () => {
+    let prices = await getPriceData();
+    prices = prices.filter(price => Object.keys(price).length);
+    console.log(prices)
+    setPrices(prices);
+  }, [getPriceData]);
 
   const addCoin = (key) => {
     if (favorites.length < MAX_FAVORITES) {
@@ -78,7 +77,7 @@ export const AppProvider = props => {
 
   useEffect(() => {
     !settings.firstVisit && fetchPrices();
-  }, [])
+  }, [settings.firstVisit, fetchPrices])
 
 
   return (
@@ -95,7 +94,8 @@ export const AppProvider = props => {
         setFavorites,
         addCoin,
         removeCoin,
-        isInFavorites
+        isInFavorites,
+        prices
       }}
     >
       {props.children}
