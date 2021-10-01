@@ -53,7 +53,6 @@ export const AppProvider = props => {
   const fetchPrices = useCallback(async () => {
     let prices = await getPriceData();
     prices = prices.filter(price => Object.keys(price).length);
-    console.log(prices)
     setPrices(prices);
   }, [getPriceData]);
 
