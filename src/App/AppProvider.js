@@ -15,8 +15,8 @@ export const AppProvider = props => {
     if (!cryptoDashData) {
       settings = {page: 'settings', firstVisit: true, favorites: defaultFavorites};
     } else {
-      let {favorites} = cryptoDashData;
-      settings = {favorites, ...settings};
+      let {favorites, currentFavorite} = cryptoDashData;
+      settings = {favorites, currentFavorite, ...settings};
     }
     return settings;
   };
@@ -28,12 +28,24 @@ export const AppProvider = props => {
   const [firstVisit, setVisit ] = useState(settings.firstVisit);
   const [coinList, setCoinList] = useState();
   const [favorites, setFavorites] = useState(settings.favorites);
+  const [currentFavorite, setCurrentFavorite] = useState(settings.currentFavorite);
   const [prices, setPrices] = useState();
 
   const confirmFavorites = () => {
+    const newFavorite = favorites[0]; 
+    setCurrentFavorite(newFavorite);
     setVisit(false);
     localStorage.setItem('cryptoDash', JSON.stringify({
-      favorites: favorites
+      favorites: favorites,
+      currentFavorite: newFavorite
+    }));
+  }
+
+  const updateCurrentFavorite = (sym) => {
+    setCurrentFavorite(sym);
+    localStorage.setItem('cryptoDash', JSON.stringify({
+      ...JSON.parse(localStorage.getItem('cryptoDash')),
+      currentFavorite: sym
     }));
   }
 
@@ -90,6 +102,8 @@ export const AppProvider = props => {
         confirmFavorites,
         coinList,
         favorites,
+        currentFavorite,
+        updateCurrentFavorite,
         setFavorites,
         addCoin,
         removeCoin,
