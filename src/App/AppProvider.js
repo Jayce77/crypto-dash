@@ -25,14 +25,23 @@ export const AppProvider = props => {
 
   const settings = savedSettings();
   
-  const [page, setPage] = useState(settings.page);
+  const [page, setPage] = useState();
   const [filteredCoins, setFilteredCoins] = useState();
-  const [firstVisit, setVisit ] = useState(settings.firstVisit);
+  const [firstVisit, setVisit ] = useState();
   const [coinList, setCoinList] = useState();
-  const [favorites, setFavorites] = useState(settings.favorites);
-  const [currentFavorite, setCurrentFavorite] = useState(settings.currentFavorite);
+  const [favorites, setFavorites] = useState();
+  const [currentFavorite, setCurrentFavorite] = useState();
   const [prices, setPrices] = useState();
   const [historicalPrices, setHistoricalPrices] = useState();
+
+  useEffect(() => {
+    const settings = savedSettings();
+    console.log(settings)
+    setPage(settings.page);
+    setVisit(settings.firstVisit);
+    setFavorites(settings.favorites);
+    setCurrentFavorite(settings.currentFavorite);
+  }, [setPage, setVisit, setFavorites, setCurrentFavorite])
 
   const confirmFavorites = () => {
     const newFavorite = favorites[0]; 
@@ -54,14 +63,16 @@ export const AppProvider = props => {
 
   const getPriceData = useCallback(async () => {
     let returnData = [];
-    for (const favorite of favorites) {
-       try {
-         const priceData = await CC.priceFull(favorite, 'USD');
-         returnData = returnData.concat(priceData);
-       } catch (e) {
-         console.warn('Fetch price error:', e);
-       }
-    };
+    if (favorites) {
+      for (const favorite of favorites) {
+        try {
+          const priceData = await CC.priceFull(favorite, 'USD');
+          returnData = returnData.concat(priceData);
+        } catch (e) {
+          console.warn('Fetch price error:', e);
+        }
+      }
+    }
     return returnData;
   }, [favorites]);
   
@@ -79,14 +90,14 @@ export const AppProvider = props => {
   }, [currentFavorite]);
 
   useEffect(() => {
-    return async () => {
+    // return async () => {
       if (currentFavorite) {
         console.log('current favorite', currentFavorite)
-        let histroicalPriceData = await getHistoricalData();
+        let histroicalPriceData = getHistoricalData();
         console.log(histroicalPriceData);
         setHistoricalPrices(histroicalPriceData)
       }
-    }
+    // }
   }, [currentFavorite, getHistoricalData]);
   
   const fetchPrices = useCallback(async () => {
