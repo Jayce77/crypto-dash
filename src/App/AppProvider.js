@@ -33,18 +33,19 @@ export const AppProvider = props => {
   const [currentFavorite, setCurrentFavorite] = useState();
   const [prices, setPrices] = useState();
   const [historicalPrices, setHistoricalPrices] = useState();
+  const [timeInterval, setTimeInterval] = useState('months');
 
   const formatPriceData = useCallback((histroicalPriceData) => {
     return [
       {
         name: currentFavorite,
         data: histroicalPriceData.map((d, i) => [
-          moment().subtract({months: TIME_UNITS - i}).valueOf(),
+          moment().subtract({[timeInterval]: TIME_UNITS - i}).valueOf(),
           d.USD
         ])
       }
     ]
-  }, [currentFavorite]);
+  }, [currentFavorite, timeInterval]);
 
   useEffect(() => {
     const settings = savedSettings();
@@ -63,6 +64,10 @@ export const AppProvider = props => {
       currentFavorite: newFavorite
     }));
   }
+
+  const changeChartSelect = (value) => { 
+    setHistoricalPrices(null);
+    setTimeInterval(value) };
 
   const updateCurrentFavorite = (sym) => {
     setHistoricalPrices(null);
@@ -94,11 +99,11 @@ export const AppProvider = props => {
       const data = CC.priceHistorical(
         currentFavorite,
         'USD',
-        moment().subtract({months: units}).toDate());
+        moment().subtract({[timeInterval]: units}).toDate());
       promises = promises.concat(data)
     }
     return await Promise.all(promises)
-  }, [currentFavorite]);
+  }, [currentFavorite, timeInterval]);
 
   useEffect(() => {
     if (currentFavorite) {
@@ -159,7 +164,8 @@ export const AppProvider = props => {
         removeCoin,
         isInFavorites,
         prices,
-        historicalPrices
+        historicalPrices,
+        changeChartSelect
       }}
     >
       {props.children}
