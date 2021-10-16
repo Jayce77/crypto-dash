@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import _ from 'lodash';
-import moment from 'moment';
+import moment, { months } from 'moment';
 
 const MAX_FAVORITES = 10;
 const TIME_UNITS = 10;
@@ -34,9 +34,20 @@ export const AppProvider = props => {
   const [prices, setPrices] = useState();
   const [historicalPrices, setHistoricalPrices] = useState();
 
+  const formatPriceData = useCallback((histroicalPriceData) => {
+    return [
+      {
+        name: currentFavorite,
+        data: histroicalPriceData.map((d, i) => [
+          moment().subtract({months: TIME_UNITS - i}).valueOf(),
+          d.USD
+        ])
+      }
+    ]
+  }, [currentFavorite]);
+
   useEffect(() => {
     const settings = savedSettings();
-    console.log(settings)
     setPage(settings.page);
     setVisit(settings.firstVisit);
     setFavorites(settings.favorites);
@@ -54,6 +65,7 @@ export const AppProvider = props => {
   }
 
   const updateCurrentFavorite = (sym) => {
+    setHistoricalPrices(null);
     setCurrentFavorite(sym);
     localStorage.setItem('cryptoDash', JSON.stringify({
       ...JSON.parse(localStorage.getItem('cryptoDash')),
@@ -77,7 +89,6 @@ export const AppProvider = props => {
   }, [favorites]);
   
   const getHistoricalData = useCallback(async () => {
-    console.log('getting data');
     let promises = [];
     for (let units = TIME_UNITS; units > 0; units--) {
       const data = CC.priceHistorical(
@@ -86,19 +97,20 @@ export const AppProvider = props => {
         moment().subtract({months: units}).toDate());
       promises = promises.concat(data)
     }
-    return Promise.all(promises);
+    return await Promise.all(promises)
   }, [currentFavorite]);
 
   useEffect(() => {
-    // return async () => {
-      if (currentFavorite) {
-        console.log('current favorite', currentFavorite)
-        let histroicalPriceData = getHistoricalData();
-        console.log(histroicalPriceData);
-        setHistoricalPrices(histroicalPriceData)
+    if (currentFavorite) {
+      const fetchHistoricalData = async () => {
+        let histroicalPriceData = await getHistoricalData();
+        const formatedData = formatPriceData(histroicalPriceData);
+        setHistoricalPrices(formatedData);
       }
-    // }
-  }, [currentFavorite, getHistoricalData]);
+
+      fetchHistoricalData();
+    }
+  }, [currentFavorite, getHistoricalData, formatPriceData]);
   
   const fetchPrices = useCallback(async () => {
     let prices = await getPriceData();
@@ -146,7 +158,8 @@ export const AppProvider = props => {
         addCoin,
         removeCoin,
         isInFavorites,
-        prices
+        prices,
+        historicalPrices
       }}
     >
       {props.children}
